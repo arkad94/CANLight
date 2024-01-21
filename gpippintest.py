@@ -3,7 +3,8 @@ from time import sleep
 import os
 
 # Output folder path (change to your desired path)
-output_folder = "/home/pi/gpio_test_results"
+output_folder = "/home/arkad94/GPIOPINTest/gpio_test_results"
+
 
 # Create the folder if it doesn't exist
 os.makedirs(output_folder, exist_ok=True)
