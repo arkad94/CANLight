@@ -29,6 +29,7 @@ def listen_and_respond(bus, arbitration_id):
             send_response(bus, arbitration_id, message.data)
 
 def main():
+    global bus
     bus = can.interface.Bus(channel='can0', bustype='socketcan', bitrate=500000)
     print("Listening for messages...")
     listen_and_respond(bus, 749)
