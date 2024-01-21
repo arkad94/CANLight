@@ -20,7 +20,7 @@ def send_response(bus, arbitration_id, original_data):
 
 def listen_and_respond(bus, arbitration_id):
     while True:
-        message = bus.recv(10.0)  # Timeout in seconds
+        message = bus.recv(60.0)  # Timeout in seconds
         if message is None:
             print("Timeout occurred, no message.")
             continue
