@@ -15,7 +15,8 @@ def send_response(bus, arbitration_id, received_time):
     message = can.Message(arbitration_id=arbitration_id, data=data, is_extended_id=False)
     try:
         bus.send(message)
-        print(f"Response sent with latency {one_way_latency} ms on {bus.channel_info}")
+        print(f"Sent response with latency {one_way_latency} ms on {bus.channel_info}")
+        print(f"Response data: {data}")
     except can.CanError:
         print("Response NOT sent")
 
@@ -28,6 +29,7 @@ def listen_and_respond(bus, arbitration_id):
         if message.arbitration_id == arbitration_id:
             received_time = milliseconds_since_midnight()
             print(f"Message received: {message}")
+            print(f"Received data: {message.data}")
             send_response(bus, arbitration_id, received_time)
 
 def main():
