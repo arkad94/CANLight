@@ -27,7 +27,7 @@ def welcome_animation():
     for i in corners:
         strip.setPixelColor(i, white)
         strip.show()
-        time.sleep(0.05
+        time.sleep(0.05)
 
     # Light up 14,15,16
     for i in range(13, 16):
