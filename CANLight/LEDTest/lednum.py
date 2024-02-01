@@ -16,7 +16,7 @@ strip.begin()  # Initialize the library (must be called once before other functi
 def color_alternator(index):
     # Alternate between turquoise and green
     if index % 2 == 0:
-        return Color(51, 204, 255)  # Turquoise color
+        return Color(0, 128, 255)  # Turquoise color
     else:
         return Color(0, 128, 0)  # Green color
 
