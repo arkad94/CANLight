@@ -33,7 +33,7 @@ def welcome_animation():
     for i in range(13, 16):
         strip.setPixelColor(i, white)
         strip.show()
-        time.sleep(0.5)
+        time.sleep(0.05)
 
     # Light up 9,8,1
     sequence = [8, 7, 0]
@@ -59,7 +59,7 @@ def welcome_animation():
     
 
 def transition_to_drl():
-    white = Color(255, 255, 255)
+    white = Color(255, 235, 200)
     # Turn off all LEDs except 1,2,3,4,5,12,13,14,15,16,9,8
     drl_leds = [0, 1, 2, 3, 4, 7, 8, 11, 12, 13, 14, 15]  # Corrected list of LEDs for DRL
     for i in range(LED_COUNT):
