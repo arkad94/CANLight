@@ -30,7 +30,7 @@ try:
             strip.setPixelColor(7 - i, Color(255, 96, 0))
 
             strip.show()
-            time.sleep(0.2)  # Animation speed
+            time.sleep(0.1)  # Animation speed
 
         # Turn off only the amber LEDs
         for i in range(4, 12):
