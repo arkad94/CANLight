@@ -15,12 +15,13 @@ strip.begin()  # Initialize the library
 
 print('Press Ctrl-C to quit.')
 try:
+    # Initially set the top and bottom rows to red
+    for i in range(4):
+        strip.setPixelColor(i, Color(255, 0, 0))  # Top row red
+        strip.setPixelColor(15 - i, Color(255, 0, 0))  # Bottom row red
+    strip.show()
+
     while True:
-        # Color the top and bottom rows in red
-        for i in range(4):
-            strip.setPixelColor(i, Color(255, 0, 0))  # Top row red
-            strip.setPixelColor(15 - i, Color(255, 0, 0))  # Bottom row red
-        
         # Amber animation for the middle rows
         for i in range(4):
             # Middle top row (LEDs 9 to 12 in your setup)
@@ -31,11 +32,8 @@ try:
             strip.show()
             time.sleep(0.5)  # Animation speed
 
-        strip.show()
-        time.sleep(1)
-        
-        # Turn all LEDs off
-        for i in range(strip.numPixels()):
+        # Turn off only the amber LEDs
+        for i in range(4, 12):
             strip.setPixelColor(i, Color(0, 0, 0))
         strip.show()
         time.sleep(1)
