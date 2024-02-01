@@ -48,7 +48,7 @@ def welcome_animation():
     for i in additional_sequence:
         strip.setPixelColor(i, white)
         strip.show()
-        time.sleep(0.05)
+        time.sleep(0.085)
 
     # Transition to Part 2
     transition_to_drl()
