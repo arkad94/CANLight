@@ -56,14 +56,19 @@ def welcome_animation():
 
     # Transition to Part 2
     transition_to_drl()
+    
 
 def transition_to_drl():
+    white = Color(255, 255, 255)
     # Turn off all LEDs except 1,2,3,4,5,12,13,14,15,16,9,8,1
-    drl_leds = [0, 1, 2, 3, 4, 8, 9, 11, 12, 13, 14, 15]
+    drl_leds = [0, 1, 2, 3, 4, 7, 8, 9, 11, 12, 13, 14, 15]  # Include index 7 for your LED 8
     for i in range(LED_COUNT):
-        if i not in drl_leds:
-            strip.setPixelColor(i, Color(0, 0, 0))
+        if i in drl_leds:
+            strip.setPixelColor(i, white)  # Ensure these LEDs are on
+        else:
+            strip.setPixelColor(i, Color(0, 0, 0))  # Turn off other LEDs
     strip.show()
+
 
 try:
     welcome_animation()
