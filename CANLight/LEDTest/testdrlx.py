@@ -17,46 +17,42 @@ strip.begin()  # Initialize the library
 def welcome_animation():
     white = Color(255, 235, 200)
 
-    # Light up 1-4
-    for i in range(4):
+    # Light up 2-3
+    for i in range(1, 3):
         strip.setPixelColor(i, white)
         strip.show()
         time.sleep(0.05)
 
-    # Light up 4,5,12,13
-    corners = [3, 4, 11, 12]
+    # Light up 5,12
+    corners = [4, 11]
     for i in corners:
         strip.setPixelColor(i, white)
         strip.show()
         time.sleep(0.05)
 
-    # Light up 14,15,16
-    for i in range(13, 16):
+    # Light up 14,15
+    for i in range(13, 15):
         strip.setPixelColor(i, white)
         strip.show()
         time.sleep(0.05)
 
-    # Light up 9,8,1
-    sequence = [8, 7, 0]
+    # Light up 9,8
+    sequence = [8, 7]
     for i in sequence:
         strip.setPixelColor(i, white)
         strip.show()
         time.sleep(0.05)
 
-    # Blink 7,6,10,11
-    blink_leds = [6, 5, 9, 10]
-    for _ in range(3):  # Blink 3 times
-        for i in blink_leds:
-            strip.setPixelColor(i, white)
+    # Light up 1,7,11,13 and then 4,6,10,16
+    additional_sequence = [0, 6, 10, 12, 3, 5, 9, 15]
+    for i in additional_sequence:
+        strip.setPixelColor(i, white)
         strip.show()
-        time.sleep(0.5)
-        for i in blink_leds:
-            strip.setPixelColor(i, Color(0, 0, 0))
-        strip.show()
-        time.sleep(0.5)
+        time.sleep(0.05)
 
     # Transition to Part 2
     transition_to_drl()
+
     
 
 def transition_to_drl():
