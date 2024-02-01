@@ -14,33 +14,33 @@ strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRI
 strip.begin()  # Initialize the library
 
 def welcome_animation():
-    white = Color(255, 255, 255)
+    white = Color(255, 235, 200)
 
     # Light up 1-4
     for i in range(4):
         strip.setPixelColor(i, white)
         strip.show()
-        time.sleep(0.1)
+        time.sleep(0.05)
 
     # Light up 4,5,12,13
     corners = [3, 4, 11, 12]
     for i in corners:
         strip.setPixelColor(i, white)
         strip.show()
-        time.sleep(0.1)
+        time.sleep(0.05
 
     # Light up 14,15,16
     for i in range(13, 16):
         strip.setPixelColor(i, white)
         strip.show()
-        time.sleep(0.1)
+        time.sleep(0.5)
 
     # Light up 9,8,1
     sequence = [8, 7, 0]
     for i in sequence:
         strip.setPixelColor(i, white)
         strip.show()
-        time.sleep(0.1)
+        time.sleep(0.05)
 
     # Blink 7,6,10,11
     blink_leds = [6, 5, 9, 10]
