@@ -21,27 +21,27 @@ def welcome_animation():
     for i in range(1, 3):
         strip.setPixelColor(i, white)
         strip.show()
-        time.sleep(0.05)
+        time.sleep(0.1)
 
     # Light up 5,12
     corners = [4, 11]
     for i in corners:
         strip.setPixelColor(i, white)
         strip.show()
-        time.sleep(0.05)
+        time.sleep(0.1)
 
     # Light up 14,15
     for i in range(13, 15):
         strip.setPixelColor(i, white)
         strip.show()
-        time.sleep(0.05)
+        time.sleep(0.1)
 
     # Light up 9,8
     sequence = [8, 7]
     for i in sequence:
         strip.setPixelColor(i, white)
         strip.show()
-        time.sleep(0.05)
+        time.sleep(0.1)
 
     # Light up 1,7,11,13 and then 4,6,10,16
     additional_sequence = [0, 6, 10, 12, 3, 5, 9, 15]
