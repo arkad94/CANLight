@@ -1,5 +1,6 @@
 import time
 import can
+import threading
 from rpi_ws281x import PixelStrip, Color
 
 # LED strip configuration
@@ -11,6 +12,7 @@ LED_BRIGHTNESS = 15
 LED_INVERT = False
 
 tlright_active = False
+thread_stop = False
 
 # CAN configuration
 CAN_CHANNEL = 'can0'
@@ -175,48 +177,40 @@ def tlright():
 
 bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
 
-def receive_can_message(bus):
+def can_message_thread():
     global tlright_active
-    while True:
-        message = bus.recv(7 / 1000)
-        if message is None:
-            turn_off_brake_leds()
-            return "check_again"
-        elif message.arbitration_id == 0x007:
-            if message.data == b'\x01\x00\x00\x00\x00':
-                tlright_active = False  # Stop tlright animation if active
-                return "start_animation"
-            elif message.data == b'\x00\x00\x00\x00\x01':
-                tlright_active = False  # Stop tlright animation if active
-                return "welcome_tail"
-            elif message.data == b'\x00\x00\x00\x00\x00':
-                tlright_active = False  # Stop tlright animation if active
-                return "turn_off"
-        elif message.arbitration_id == 0x002:
-            if message.data == b'\x00\x00\x00\x00\x01\x01':
-                return "tlright"  # Start tlright animation
-        elif message.arbitration_id == 0x001:
-            if message.data == b'\x01\x01\x01\x01\x01':
-                tlright_active = False  # Stop tlright animation if active
+    bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
+
+    while not thread_stop:
+        message = bus.recv()
+        if message:
+            if message.arbitration_id == 0x007:
+                tlright_active = False
+                if message.data == b'\x01\x00\x00\x00\x00':
+                    welcome_animation()
+                elif message.data == b'\x00\x00\x00\x00\x01':
+                    welcome_tail()
+                elif message.data == b'\x00\x00\x00\x00\x00':
+                    turn_off_leds()
+            elif message.arbitration_id == 0x002 and message.data == b'\x00\x00\x00\x00\x01\x01':
+                tlright_active = True
+            elif message.arbitration_id == 0x001 and message.data == b'\x01\x01\x01\x01\x01':
+                tlright_active = False
                 handle_brake()
-                return "brake_on"
+
+# Start CAN message handling thread
+can_thread = threading.Thread(target=can_message_thread)
+can_thread.start()
 
 # Main loop
 try:
     while True:
-        action = receive_can_message(bus)
-        if action == "start_animation":
-            welcome_animation()
-        elif action == "welcome_tail":
-            welcome_tail()
-        elif action == "tlright":
+        if tlright_active:
             tlright()
-        elif action == "turn_off":
-            turn_off_leds()
-        elif action == "brake_on":
-            continue
+        time.sleep(0.1)  # Small delay to prevent high CPU usage
 except KeyboardInterrupt:
     print("CAN bus shutdown gracefully")
 finally:
+    thread_stop = True  # Indicate to the thread that it should stop
+    can_thread.join()   # Wait for the thread to finish
     turn_off_leds()
-    bus.shutdown()
