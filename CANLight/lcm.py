@@ -142,26 +142,36 @@ def turn_off_brake_leds():
 def tlright():
     global tlright_active
     tlright_active = True
-    try:
+
+    # Set top and bottom rows to red
+    for i in range(4):
+        strip.setPixelColor(i, Color(255, 0, 0))  # Top row red
+        strip.setPixelColor(15 - i, Color(255, 0, 0))  # Bottom row red
+    strip.show()
+
+    while tlright_active:
+        # Amber animation for the middle rows
         for i in range(4):
-            strip.setPixelColor(i, Color(255, 0, 0))  # Top row red
-            strip.setPixelColor(15 - i, Color(255, 0, 0))  # Bottom row red
-        strip.show()
+            strip.setPixelColor(8 + i, Color(255, 96, 0))  # Middle top row
+            strip.setPixelColor(7 - i, Color(255, 96, 0))  # Middle bottom row
 
-        while tlright_active:
-            for i in range(4):
-                strip.setPixelColor(8 + i, Color(255, 96, 0))
-                strip.setPixelColor(7 - i, Color(255, 96, 0))
-
-                strip.show()
-                time.sleep(0.2)
-
-            for i in range(4, 12):
-                strip.setPixelColor(i, Color(0, 0, 0))
             strip.show()
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("Animation interrupted")
+            time.sleep(0.2)
+
+            # Check the flag after updating each LED
+            if not tlright_active:
+                break
+
+        # Check the flag after completing one cycle of updates
+        if not tlright_active:
+            break
+
+        # Turn off only the amber LEDs
+        for i in range(4, 12):
+            strip.setPixelColor(i, Color(0, 0, 0))
+        strip.show()
+        time.sleep(1)
+
 
 bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
 
