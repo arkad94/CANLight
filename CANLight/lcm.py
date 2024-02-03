@@ -149,7 +149,7 @@ def handle_brake():
 
 
 def turn_off_brake_leds():
-    for led in [5, 10, 6, 9,]:
+    for led in [0, 12, 15, 3,]:
         strip.setPixelColor(led, Color(0, 0, 0))
     strip.show()
 
