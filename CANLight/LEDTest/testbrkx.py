@@ -17,25 +17,29 @@ def welcome_animation():
     deep_red = Color(139, 0, 0)  # Deep red color for tail light
     amber = Color(255, 191, 0)   # Amber color
 
-    # Mapping of LED indices to their corresponding colors
-    led_colors = {
-        1: deep_red, 2: deep_red, 7: deep_red, 11: deep_red, 14: deep_red, 13: deep_red, 8: deep_red, 4: deep_red,
-        0: amber, 5: amber, 10: amber, 15: amber, 3: amber, 6: amber, 9: amber, 12: amber
-    }
+    # Tail light sequence
+    tail_sequence = [1, 2, 7, 11, 14, 13, 8, 4]
 
-    # Light up LEDs in sequence
-    for i in range(LED_COUNT):
-        strip.setPixelColor(i, led_colors.get(i, Color(0, 0, 0)))
+    # Light up LEDs in the specified tail light sequence
+    for i in tail_sequence:
+        strip.setPixelColor(i, deep_red)
         strip.show()
         time.sleep(0.1)
 
+    # Light up remaining LEDs in amber
+    for i in range(LED_COUNT):
+        if i not in tail_sequence:
+            strip.setPixelColor(i, amber)
+            strip.show()
+            time.sleep(0.1)
+
     # Blink "X" pattern
     for _ in range(4):  # Blink 4 times
-        for i in led_colors.keys():
-            strip.setPixelColor(i, led_colors[i])
+        for i in range(LED_COUNT):
+            strip.setPixelColor(i, deep_red if i in tail_sequence else amber)
         strip.show()
         time.sleep(0.25)  # Blink every 0.25 seconds
-        for i in led_colors.keys():
+        for i in range(LED_COUNT):
             strip.setPixelColor(i, Color(0, 0, 0))
         strip.show()
         time.sleep(0.25)  # Off for 0.25 seconds
@@ -48,12 +52,8 @@ def transition_to_tail():
     amber = Color(255, 191, 0)   # Amber color
 
     # Turn on specific LEDs in deep red and amber
-    tail_leds = [1, 2, 7, 11, 14, 13, 8, 4, 0, 5, 10, 15, 3, 6, 9, 12]
-    for i in tail_leds:
-        if i in [0, 5, 10, 15, 3, 6, 9, 12]:  # Amber LEDs
-            strip.setPixelColor(i, amber)
-        else:  # Deep red LEDs
-            strip.setPixelColor(i, deep_red)
+    for i in range(LED_COUNT):
+        strip.setPixelColor(i, deep_red if i in [1, 2, 7, 11, 14, 13, 8, 4] else amber)
     strip.show()
 
 try:
