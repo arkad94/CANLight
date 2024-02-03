@@ -23,6 +23,11 @@ CAN_BITRATE = bitrate_options.get(user_choice, 500000)  # Default to 500KHz if i
 strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS)
 strip.begin()
 
+def turn_off_leds():
+    for i in range(LED_COUNT):
+        strip.setPixelColor(i, Color(0, 0, 0))
+    strip.show()
+
 # Function definitions for the LED animations
 def welcome_animation():
     white = Color(255, 235, 200)
@@ -144,7 +149,7 @@ def handle_brake():
 
 
 def turn_off_brake_leds():
-    for led in [0, 5, 10, 15, 3, 6, 9, 12]:
+    for led in [5, 10, 6, 9,]:
         strip.setPixelColor(led, Color(0, 0, 0))
     strip.show()
 
@@ -174,7 +179,7 @@ def receive_can_message():
 # Main loop modified to include welcome_tail action
 try:
     while True:
-        action = receive_can_message()
+        action = receive_can_message(bus)
         if action == "start_animation":
             welcome_animation()
         elif action == "welcome_tail":
@@ -182,13 +187,10 @@ try:
         elif action == "turn_off":
             turn_off_leds()
         elif action == "brake_on":
-            continue  # Keep the brake lights on
-
+            continue  # Keep the brake lights on, waiting for the next message
+        # No action is needed for "check_again"; it simply continues the loop
 except KeyboardInterrupt:
-    # Graceful shutdown on Ctrl+C
-    turn_off_leds()
-    bus.shutdown()
     print("CAN bus shutdown gracefully")
-
-except Exception as e:
-    print(f"An error occurred: {e}")
+finally:
+    turn_off_leds()  # Ensure LEDs are turned off
+    bus.shutdown()  # Shutdown CAN bus
