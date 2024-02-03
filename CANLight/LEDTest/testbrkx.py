@@ -16,14 +16,15 @@ BRIGHTNESS_AMBER = 255
 strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, BRIGHTNESS_AMBER)  # Max brightness for amber
 strip.begin()  # Initialize the library
 
+# Define colors
+red = Color(255, 0, 0)  # Red color
+amber = Color(255, 165, 0)  # Amber color
+
 def set_led_color(index, color):
     strip.setPixelColor(index, color)
     strip.show()
 
 def welcome_animation():
-    red = Color(255, 0, 0)  # Red color
-    amber = Color(255, 165, 0)  # Amber color
-
     # LEDs to be set to red
     red_leds = [1, 2, 7, 11, 14, 13, 8, 4]
     for i in red_leds:
@@ -34,22 +35,16 @@ def welcome_animation():
     for i in amber_leds:
         set_led_color(i, amber)
 
-    # Transition to Part 2
-    transition_to_drl()
-
-def transition_to_drl():
     # Blink "X" pattern (additional_sequence)
     for _ in range(4):  # Blink 4 times
         for i in [0, 6, 10, 12, 3, 5, 9, 15]:
-            strip.setPixelColor(i, white)
+            strip.setPixelColor(i, amber)  # Using amber for the blink pattern
         strip.show()
         time.sleep(0.25)  # Blink every 0.25 seconds
         for i in [0, 6, 10, 12, 3, 5, 9, 15]:
             strip.setPixelColor(i, Color(0, 0, 0))
         strip.show()
         time.sleep(0.25)  # Off for 0.25 seconds
-
-    # Transition to Part 2    
 
 try:
     welcome_animation()
@@ -62,3 +57,4 @@ except KeyboardInterrupt:
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, Color(0, 0, 0))
     strip.show()
+
