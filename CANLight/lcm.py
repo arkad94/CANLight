@@ -157,12 +157,12 @@ def turn_off_brake_leds():
 # Initialize CAN interface
 bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
 
-def receive_can_message():
+def receive_can_message(bus):
     while True:
         message = bus.recv(7 / 1000)  # Set timeout to 7ms
         if message is None:  # If no message is received within 7ms
             turn_off_brake_leds()
-            return None
+            return "check_again"  # Return a string to indicate to check again
         elif message.arbitration_id == 0x007:
             if message.data == b'\x01\x00\x00\x00\x00':
                 return "start_animation"
@@ -174,7 +174,7 @@ def receive_can_message():
             if message.data == b'\x01\x01\x01\x01\x01':
                 handle_brake()
                 return "brake_on"
-            
+
 
 # Main loop modified to include welcome_tail action
 try:
