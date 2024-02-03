@@ -15,7 +15,7 @@ strip.begin()  # Initialize the library
 
 # Define colors
 amber = Color(255, 96, 0)  # Amber color
-white = Color(255, 255, 255)  # White color
+white_dim = Color(25, 25, 25)  # Dim white color (brightness reduced)
 
 def set_leds_color(leds, color):
     for i in leds:
@@ -25,7 +25,7 @@ def set_leds_color(leds, color):
 def set_default_white():
     white_leds = [1, 2, 3, 12, 13, 14]
     for i in white_leds:
-        strip.setPixelColor(i, white)
+        strip.setPixelColor(i, white_dim)
     strip.show()
 
 try:
@@ -38,8 +38,8 @@ try:
         time.sleep(0.5)
 
         # Step 2: Sequentially turn other LEDs white with pauses
-        for leds in [[0, 5, 8, 12], [5, 9], [6, 10], [7, 11]]:
-            set_leds_color(leds, white)
+        for leds in [[0, 5, 8], [5, 9], [6, 10], [7, 11]]:
+            set_leds_color(leds, white_dim)
             time.sleep(0.5)
 
 except KeyboardInterrupt:
