@@ -30,7 +30,7 @@ try:
 
         # Turn specified LEDs to amber
         set_leds_color([0, 7, 8, 15, 6, 9, 5, 10, 4, 11], amber)
-        time.sleep(3)
+        time.sleep(0.5)
 
         # Sequentially revert specific LEDs back to dim white with pauses
         revert_sequences = [
@@ -41,7 +41,7 @@ try:
         ]
         for group in revert_sequences:
             set_leds_color(group, white_dim)
-            time.sleep(5)
+            time.sleep(0.5)
 
 except KeyboardInterrupt:
     # Turn off all the LEDs on Ctrl+C
