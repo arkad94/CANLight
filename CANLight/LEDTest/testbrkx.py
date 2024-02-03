@@ -14,32 +14,44 @@ strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRI
 strip.begin()  # Initialize the library
 
 def welcome_animation():
-    deep_red = Color(139, 0, 0)  # Deep red color for tail light
-    amber = Color(255, 191, 0)   # Amber color
+    deep_red = Color(139, 0, 0)  # Deep red color for the initial sequence
+    amber = Color(255, 191, 0)   # Amber color for the "Blink X" pattern
 
-    # Tail light sequence
-    tail_sequence = [1, 2, 7, 11, 14, 13, 8, 4]
-
-    # Light up LEDs in the specified tail light sequence
-    for i in tail_sequence:
+    # Initial sequence in deep red
+    # Light up 2-3
+    for i in range(1, 3):
         strip.setPixelColor(i, deep_red)
         strip.show()
         time.sleep(0.1)
 
-    # Light up remaining LEDs in amber
-    for i in range(LED_COUNT):
-        if i not in tail_sequence:
-            strip.setPixelColor(i, amber)
-            strip.show()
-            time.sleep(0.1)
+    # Light up 5, 12
+    corners = [4, 11]
+    for i in corners:
+        strip.setPixelColor(i, deep_red)
+        strip.show()
+        time.sleep(0.1)
 
-    # Blink "X" pattern
+    # Light up 14, 15
+    for i in range(13, 15):
+        strip.setPixelColor(i, deep_red)
+        strip.show()
+        time.sleep(0.1)
+
+    # Light up 9, 8
+    sequence = [8, 7]
+    for i in sequence:
+        strip.setPixelColor(i, deep_red)
+        strip.show()
+        time.sleep(0.1)
+
+    # Blink "X" pattern in amber
+    x_pattern = [0, 6, 10, 12, 3, 5, 9, 15]
     for _ in range(4):  # Blink 4 times
-        for i in range(LED_COUNT):
-            strip.setPixelColor(i, deep_red if i in tail_sequence else amber)
+        for i in x_pattern:
+            strip.setPixelColor(i, amber)
         strip.show()
         time.sleep(0.25)  # Blink every 0.25 seconds
-        for i in range(LED_COUNT):
+        for i in x_pattern:
             strip.setPixelColor(i, Color(0, 0, 0))
         strip.show()
         time.sleep(0.25)  # Off for 0.25 seconds
