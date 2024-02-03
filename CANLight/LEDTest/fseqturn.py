@@ -22,24 +22,20 @@ def set_leds_color(leds, color):
         strip.setPixelColor(i, color)
     strip.show()
 
-def set_default_white():
-    white_leds = [1, 2, 3, 12, 13, 14]
-    for i in white_leds:
-        strip.setPixelColor(i, white_dim)
-    strip.show()
-
 try:
     while True:
-        # Set default white LEDs
-        set_default_white()
-
-        # Step 1: Set specified LEDs to amber
-        set_leds_color([4, 8, 5, 9, 6, 10, 7, 11], amber)
+        # Initial state: all LEDs are dim white
+        set_leds_color(range(LED_COUNT), white_dim)
         time.sleep(0.5)
 
-        # Step 2: Sequentially turn other LEDs white with pauses
-        for leds in [[0, 5, 8], [5, 9], [6, 10], [7, 11]]:
-            set_leds_color(leds, white_dim)
+        # Turn specified LEDs to amber
+        set_leds_color([0, 4, 8, 12, 5, 9, 6, 10, 7, 11], amber)
+        time.sleep(0.5)
+
+        # Sequentially revert LEDs back to dim white with pauses
+        revert_groups = [[0, 4, 8, 12], [5, 9], [6, 10], [7, 11]]
+        for group in revert_groups:
+            set_leds_color(group, white_dim)
             time.sleep(0.5)
 
 except KeyboardInterrupt:
