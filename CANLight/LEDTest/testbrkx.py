@@ -38,8 +38,18 @@ def welcome_animation():
     transition_to_drl()
 
 def transition_to_drl():
-    # Continue with the DRL configuration as before
-    # ...
+    # Blink "X" pattern (additional_sequence)
+    for _ in range(4):  # Blink 4 times
+        for i in [0, 6, 10, 12, 3, 5, 9, 15]:
+            strip.setPixelColor(i, white)
+        strip.show()
+        time.sleep(0.25)  # Blink every 0.25 seconds
+        for i in [0, 6, 10, 12, 3, 5, 9, 15]:
+            strip.setPixelColor(i, Color(0, 0, 0))
+        strip.show()
+        time.sleep(0.25)  # Off for 0.25 seconds
+
+    # Transition to Part 2    
 
 try:
     welcome_animation()
