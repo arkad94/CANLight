@@ -141,7 +141,7 @@ def transition_to_tail():
 
 def handle_brake():
     deep_red_max = Color(255, 0, 0)  # Deep red color for brake light
-    brake_leds = [0, 5, 10, 15, 3, 6, 9, 12]
+    brake_leds = [5, 6, 9, 10,]
     for led in brake_leds:
         strip.setPixelColor(led, deep_red_max)
     strip.setBrightness(255)  # Max brightness for brake LEDs
@@ -149,7 +149,7 @@ def handle_brake():
 
 
 def turn_off_brake_leds():
-    for led in [0, 12, 15, 3,]:
+    for led in [5, 6, 9, 10,]:
         strip.setPixelColor(led, Color(0, 0, 0))
     strip.show()
 
