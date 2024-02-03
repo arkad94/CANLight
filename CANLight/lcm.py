@@ -78,6 +78,64 @@ def transition_to_drl():
             strip.setPixelColor(i, Color(0, 0, 0))  # Turn off other LEDs
     strip.show()
 
+def welcome_tail():
+    deep_red = Color(139, 0, 0)  # Deep red color for the initial sequence
+    amber = Color(255, 96, 0)   # Amber color for the "Blink X" pattern    
+
+    # Initial sequence in deep red
+    # Light up 2-3
+    for i in range(1, 3):
+        strip.setPixelColor(i, deep_red)
+        strip.show()
+        time.sleep(0.1)
+
+    # Light up 5, 12
+    corners = [4, 11]
+    for i in corners:
+        strip.setPixelColor(i, deep_red)
+        strip.show()
+        time.sleep(0.1)
+
+    # Light up 14, 15
+    for i in range(13, 15):
+        strip.setPixelColor(i, deep_red)
+        strip.show()
+        time.sleep(0.1)
+
+    # Light up 9, 8
+    sequence = [8, 7]
+    for i in sequence:
+        strip.setPixelColor(i, deep_red)
+        strip.show()
+        time.sleep(0.1)
+
+    # Blink "X" pattern in amber
+    x_pattern = [0, 6, 10, 12, 3, 5, 9, 15]
+    for _ in range(4):  # Blink 4 times
+        for i in x_pattern:
+            strip.setPixelColor(i, amber)
+        strip.show()
+        time.sleep(0.25)  # Blink every 0.25 seconds
+        for i in x_pattern:
+            strip.setPixelColor(i, Color(0, 0, 0))
+        strip.show()
+        time.sleep(0.25)  # Off for 0.25 seconds
+
+    # Transition to tail light
+    transition_to_tail()
+
+def transition_to_tail():
+    deep_red = Color(139, 0, 0)  # Deep red color for tail light
+
+    # Turn on specified LEDs in deep red, others off
+    for i in range(LED_COUNT):
+        if i in [1, 2, 7, 11, 14, 13, 8, 4]:
+            strip.setPixelColor(i, deep_red)
+        else:
+            strip.setPixelColor(i, Color(0, 0, 0))  # Turn off LEDs not in deep red sequence
+    strip.show()
+
+
 def turn_off_leds():
     for i in range(LED_COUNT):
         strip.setPixelColor(i, Color(0, 0, 0))
@@ -91,17 +149,21 @@ def receive_can_message():
     while True:
         message = bus.recv()  # Blocking call
         if message.arbitration_id == ARB_ID_TO_LISTEN:
-            if message.data[0] == 0x01:
+            if message.data == b'\x01\x00\x00\x00\x00':
                 return "start_animation"
-            elif message.data[0] == 0x00:
+            elif message.data == b'\x00\x00\x00\x00\x01':
+                return "welcome_tail"
+            elif message.data == b'\x00\x00\x00\x00\x00':
                 return "turn_off"
 
+# Main loop modified to include welcome_tail action
 try:
-    # React based on the specific CAN message received
     while True:
         action = receive_can_message()
         if action == "start_animation":
             welcome_animation()
+        elif action == "welcome_tail":
+            welcome_tail()
         elif action == "turn_off":
             turn_off_leds()
 
