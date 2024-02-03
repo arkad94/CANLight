@@ -10,12 +10,12 @@ LED_BRIGHTNESS = 255 # Set to 0 for darkest and 255 for brightest
 LED_INVERT = False   # True to invert the signal (when using NPN transistor level shift)
 
 # Define the brightness values for red
-R1 = 127  # Half brightness for static part
+R1 = 20   # Lower brightness for static part
 R2 = 255  # Full brightness for dynamic part
 
 # Define colors with respective brightness:
-RED_HALF_BRIGHT = Color(R1, 0, 0)  # Red with half brightness
-RED_FULL_BRIGHT = Color(R2, 0, 0)  # Red with full brightness
+RED_LOW = Color(R1, 0, 0)    # Red with lower brightness (R1)
+RED_HIGH = Color(R2, 0, 0)   # Red with full brightness (R2)
 OFF = Color(0, 0, 0)
 
 # Helper function to set color for a single pixel
@@ -33,17 +33,18 @@ strip.begin()
 
 try:
     while True:
-        # Static part with half brightness:
-        setMultiplePixels(strip, [0, 1, 2, 3, 12, 13, 14, 15], RED_HALF_BRIGHT)
+        # Static part with lower brightness:
+        setMultiplePixels(strip, [3, 2, 5, 12, 14, 15, 9, 8], RED_LOW)
 
-        # Dynamic part with full brightness:
-        setMultiplePixels(strip, [5, 9, 6, 10], RED_FULL_BRIGHT)  # LEDs on
+        # Dynamic part OFF for 3 seconds:
+        setMultiplePixels(strip, [0, 5, 10, 15, 3, 6, 9, 12], OFF)
         strip.show()
-        time.sleep(6)  # LEDs on for 6 seconds
+        time.sleep(3)
 
-        setMultiplePixels(strip, [5, 9, 6, 10], OFF)  # LEDs off
+        # Dynamic part ON with full brightness for 6 seconds:
+        setMultiplePixels(strip, [0, 5, 10, 15, 3, 6, 9, 12], RED_HIGH)
         strip.show()
-        time.sleep(3)  # LEDs off for 3 seconds
+        time.sleep(6)
 
 except KeyboardInterrupt:
     setMultiplePixels(strip, range(LED_COUNT), OFF)
