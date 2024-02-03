@@ -15,7 +15,7 @@ strip.begin()  # Initialize the library
 
 def welcome_animation():
     deep_red = Color(139, 0, 0)  # Deep red color for the initial sequence
-    amber = Color(255, 191, 0)   # Amber color for the "Blink X" pattern
+    amber = Color(255, 96, 0)   # Amber color for the "Blink X" pattern
 
     # Initial sequence in deep red
     # Light up 2-3

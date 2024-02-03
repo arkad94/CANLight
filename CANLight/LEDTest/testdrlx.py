@@ -17,26 +17,26 @@ strip.begin()  # Initialize the library
 def welcome_animation():
     white = Color(255, 235, 200)
 
-    # Light up 2-3
+    
     for i in range(1, 3):
         strip.setPixelColor(i, white)
         strip.show()
         time.sleep(0.1)
 
-    # Light up 5,12
+    
     corners = [4, 11]
     for i in corners:
         strip.setPixelColor(i, white)
         strip.show()
         time.sleep(0.1)
 
-    # Light up 14,15
+    
     for i in range(13, 15):
         strip.setPixelColor(i, white)
         strip.show()
         time.sleep(0.1)
 
-    # Light up 9,8
+    
     sequence = [8, 7]
     for i in sequence:
         strip.setPixelColor(i, white)
