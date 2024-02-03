@@ -61,13 +61,14 @@ def welcome_animation():
 
 def transition_to_tail():
     deep_red = Color(139, 0, 0)  # Deep red color for tail light
-    amber = Color(255, 191, 0)   # Amber color
 
-    # Turn on specific LEDs in deep red and amber
+    # Turn on specified LEDs in deep red, others off
     for i in range(LED_COUNT):
-        strip.setPixelColor(i, deep_red if i in [1, 2, 7, 11, 14, 13, 8, 4] else amber)
+        if i in [1, 2, 7, 11, 14, 13, 8, 4]:
+            strip.setPixelColor(i, deep_red)
+        else:
+            strip.setPixelColor(i, Color(0, 0, 0))  # Turn off LEDs not in deep red sequence
     strip.show()
-
 try:
     welcome_animation()
     # Keep tail lights on until script is closed
