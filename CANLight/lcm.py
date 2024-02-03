@@ -126,19 +126,26 @@ def welcome_tail():
 
 def transition_to_tail():
     deep_red = Color(139, 0, 0)  # Deep red color for tail light
-
-    # Turn on specified LEDs in deep red, others off
     for i in range(LED_COUNT):
         if i in [1, 2, 7, 11, 14, 13, 8, 4]:
             strip.setPixelColor(i, deep_red)
         else:
-            strip.setPixelColor(i, Color(0, 0, 0))  # Turn off LEDs not in deep red sequence
+            strip.setPixelColor(i, Color(0, 0, 0))
+    strip.setBrightness(15)  # Set brightness to 15 for specified LEDs
     strip.show()
 
+def handle_brake():
+    deep_red_max = Color(255, 0, 0)  # Deep red color for brake light
+    brake_leds = [0, 5, 10, 15, 3, 6, 9, 12]
+    for led in brake_leds:
+        strip.setPixelColor(led, deep_red_max)
+    strip.setBrightness(255)  # Max brightness for brake LEDs
+    strip.show()    
 
-def turn_off_leds():
-    for i in range(LED_COUNT):
-        strip.setPixelColor(i, Color(0, 0, 0))
+
+def turn_off_brake_leds():
+    for led in [0, 5, 10, 15, 3, 6, 9, 12]:
+        strip.setPixelColor(led, Color(0, 0, 0))
     strip.show()
 
 
@@ -147,14 +154,22 @@ bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
 
 def receive_can_message():
     while True:
-        message = bus.recv()  # Blocking call
-        if message.arbitration_id == ARB_ID_TO_LISTEN:
+        message = bus.recv(7 / 1000)  # Set timeout to 7ms
+        if message is None:  # If no message is received within 7ms
+            turn_off_brake_leds()
+            return None
+        elif message.arbitration_id == 0x007:
             if message.data == b'\x01\x00\x00\x00\x00':
                 return "start_animation"
             elif message.data == b'\x00\x00\x00\x00\x01':
                 return "welcome_tail"
             elif message.data == b'\x00\x00\x00\x00\x00':
                 return "turn_off"
+        elif message.arbitration_id == 0x001:
+            if message.data == b'\x01\x01\x01\x01\x01':
+                handle_brake()
+                return "brake_on"
+            
 
 # Main loop modified to include welcome_tail action
 try:
@@ -166,6 +181,8 @@ try:
             welcome_tail()
         elif action == "turn_off":
             turn_off_leds()
+        elif action == "brake_on":
+            continue  # Keep the brake lights on
 
 except KeyboardInterrupt:
     # Graceful shutdown on Ctrl+C
