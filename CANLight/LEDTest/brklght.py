@@ -34,7 +34,7 @@ strip.begin()
 try:
     while True:
         # Static part with lower brightness:
-        setMultiplePixels(strip, [3, 2, 5, 12, 14, 15, 9, 8], RED_LOW)
+        setMultiplePixels(strip, [1, 2, 7, 11, 14, 13, 4, 8], RED_LOW)
 
         # Dynamic part OFF for 3 seconds:
         setMultiplePixels(strip, [0, 5, 10, 15, 3, 6, 9, 12], OFF)
