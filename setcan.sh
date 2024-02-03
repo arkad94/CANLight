@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Activate the virtual environment
-echo "Activating the virtual environment..."
-source /home/arkad94/CANProve/env/bin/activate
-echo "Virtual environment activated."
 
 # Prompt for the baud rate
 echo "Please enter the desired CAN baud rate:"
