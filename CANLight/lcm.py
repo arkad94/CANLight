@@ -10,6 +10,8 @@ LED_DMA = 10
 LED_BRIGHTNESS = 15
 LED_INVERT = False
 
+tlright_active = False
+
 # CAN configuration
 CAN_CHANNEL = 'can0'
 ARB_ID_TO_LISTEN = 0x007  # Arbitration ID to trigger the animation
@@ -137,14 +139,16 @@ def turn_off_brake_leds():
         strip.setPixelColor(led, Color(0, 0, 0))
     strip.show()
 
-def amber_red_animation():
+def tlright():
+    global tlright_active
+    tlright_active = True
     try:
         for i in range(4):
-            strip.setPixelColor(i, Color(255, 0, 0))
-            strip.setPixelColor(15 - i, Color(255, 0, 0))
+            strip.setPixelColor(i, Color(255, 0, 0))  # Top row red
+            strip.setPixelColor(15 - i, Color(255, 0, 0))  # Bottom row red
         strip.show()
 
-        while True:
+        while tlright_active:
             for i in range(4):
                 strip.setPixelColor(8 + i, Color(255, 96, 0))
                 strip.setPixelColor(7 - i, Color(255, 96, 0))
@@ -162,6 +166,7 @@ def amber_red_animation():
 bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
 
 def receive_can_message(bus):
+    global tlright_active
     while True:
         message = bus.recv(7 / 1000)
         if message is None:
@@ -169,19 +174,24 @@ def receive_can_message(bus):
             return "check_again"
         elif message.arbitration_id == 0x007:
             if message.data == b'\x01\x00\x00\x00\x00':
+                tlright_active = False  # Stop tlright animation if active
                 return "start_animation"
             elif message.data == b'\x00\x00\x00\x00\x01':
+                tlright_active = False  # Stop tlright animation if active
                 return "welcome_tail"
             elif message.data == b'\x00\x00\x00\x00\x00':
+                tlright_active = False  # Stop tlright animation if active
                 return "turn_off"
         elif message.arbitration_id == 0x002:
             if message.data == b'\x00\x00\x00\x00\x01\x01':
-                return "amber_red_animation"
+                return "tlright"  # Start tlright animation
         elif message.arbitration_id == 0x001:
             if message.data == b'\x01\x01\x01\x01\x01':
+                tlright_active = False  # Stop tlright animation if active
                 handle_brake()
                 return "brake_on"
 
+# Main loop
 try:
     while True:
         action = receive_can_message(bus)
@@ -189,8 +199,8 @@ try:
             welcome_animation()
         elif action == "welcome_tail":
             welcome_tail()
-        elif action == "amber_red_animation":
-            amber_red_animation()
+        elif action == "tlright":
+            tlright()
         elif action == "turn_off":
             turn_off_leds()
         elif action == "brake_on":
