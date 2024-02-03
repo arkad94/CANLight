@@ -153,6 +153,32 @@ def turn_off_brake_leds():
         strip.setPixelColor(led, Color(0, 0, 0))
     strip.show()
 
+def amber_red_animation():
+    try:
+        # Set top and bottom rows to red
+        for i in range(4):
+            strip.setPixelColor(i, Color(255, 0, 0))  # Top row red
+            strip.setPixelColor(15 - i, Color(255, 0, 0))  # Bottom row red
+        strip.show()
+
+        while True:
+            # Amber animation for the middle rows
+            for i in range(4):
+                # Middle top row (LEDs 9 to 12 in your setup)
+                strip.setPixelColor(8 + i, Color(255, 96, 0))
+                # Middle bottom row (LEDs 8 to 5 in your setup, reversed)
+                strip.setPixelColor(7 - i, Color(255, 96, 0))
+
+                strip.show()
+                time.sleep(0.2)  # Animation speed
+
+            # Turn off only the amber LEDs
+            for i in range(4, 12):
+                strip.setPixelColor(i, Color(0, 0, 0))
+            strip.show()
+            time.sleep(1)
+    
+
 
 # Initialize CAN interface
 bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
@@ -170,6 +196,9 @@ def receive_can_message(bus):
                 return "welcome_tail"
             elif message.data == b'\x00\x00\x00\x00\x00':
                 return "turn_off"
+        elif message.arbitration_id == 0x002:
+            if message.data == b'\x00\x00\x00\x00\x01\x01':
+                return "amber_red_animation"            
         elif message.arbitration_id == 0x001:
             if message.data == b'\x01\x01\x01\x01\x01':
                 handle_brake()
@@ -184,6 +213,8 @@ try:
             welcome_animation()
         elif action == "welcome_tail":
             welcome_tail()
+        elif action == "amber_red_animation":
+            amber_red_animation()  # New animation call            
         elif action == "turn_off":
             turn_off_leds()
         elif action == "brake_on":
