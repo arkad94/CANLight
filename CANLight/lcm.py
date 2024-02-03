@@ -78,28 +78,38 @@ def transition_to_drl():
             strip.setPixelColor(i, Color(0, 0, 0))  # Turn off other LEDs
     strip.show()
 
+def turn_off_leds():
+    for i in range(LED_COUNT):
+        strip.setPixelColor(i, Color(0, 0, 0))
+    strip.show()
+
+
 # Initialize CAN interface
 bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
 
 def receive_can_message():
     while True:
         message = bus.recv()  # Blocking call
-        if message.arbitration_id == ARB_ID_TO_LISTEN and message.data[0] == 0x01:
-            return True
+        if message.arbitration_id == ARB_ID_TO_LISTEN:
+            if message.data[0] == 0x01:
+                return "start_animation"
+            elif message.data[0] == 0x00:
+                return "turn_off"
 
 try:
-    # Wait for a specific CAN message to trigger the animation
-    if receive_can_message():
-        welcome_animation()
-        # Keep DRLs on until script is closed
-        while True:
-            time.sleep(1)
+    # React based on the specific CAN message received
+    while True:
+        action = receive_can_message()
+        if action == "start_animation":
+            welcome_animation()
+        elif action == "turn_off":
+            turn_off_leds()
 
 except KeyboardInterrupt:
-    # Turn off all LEDs on Ctrl+C
-    for i in range(strip.numPixels()):
-        strip.setPixelColor(i, Color(0, 0, 0))
-    strip.show()
+    # Graceful shutdown on Ctrl+C
+    turn_off_leds()
+    bus.shutdown()
+    print("CAN bus shutdown gracefully")
 
 except Exception as e:
     print(f"An error occurred: {e}")
