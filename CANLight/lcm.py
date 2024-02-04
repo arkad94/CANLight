@@ -178,7 +178,7 @@ def tlright():
 bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
 
 def can_message_thread():
-    global tlright_active
+    global tlright_active, thread_stop
     bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
 
     while not thread_stop:
@@ -197,6 +197,8 @@ def can_message_thread():
             elif message.arbitration_id == 0x001 and message.data == b'\x01\x01\x01\x01\x01':
                 tlright_active = False
                 handle_brake()
+        if thread_stop:  # Check if the flag is set to stop
+           break            
 
 # Start CAN message handling thread
 can_thread = threading.Thread(target=can_message_thread)
@@ -207,10 +209,12 @@ try:
     while True:
         if tlright_active:
             tlright()
+        if thread_stop:  # Check if the flag is set to stop
+            break
         time.sleep(0.1)  # Small delay to prevent high CPU usage
 except KeyboardInterrupt:
     print("CAN bus shutdown gracefully")
+    thread_stop = True  # Set the flag to stop the thread
 finally:
-    thread_stop = True  # Indicate to the thread that it should stop
     can_thread.join()   # Wait for the thread to finish
     turn_off_leds()
