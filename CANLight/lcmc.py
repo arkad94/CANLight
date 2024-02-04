@@ -258,7 +258,7 @@ def can_message_thread():
                 turn_off_leds()
             elif message.arbitration_id == 0x002 and message.data == b'\x00\x00\x00\x00\x01\x01':
                 tlright_active = True
-            elif message.arbitration_id == 0x002 and message.data == b'\x00\x00\x00\x00\x01\x01':
+            elif message.arbitration_id == 0x005 and message.data == b'\x00\x00\x00\x00\x01\x01':
                 tlleft_active = True    
             elif message.arbitration_id == 0x001 and message.data == b'\x01\x01\x01\x01\x01':
                 tlright_active = False
