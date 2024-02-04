@@ -236,7 +236,7 @@ def can_message_thread():
                 else:  # If already active, do nothing or handle as needed
                     pass
             
-            elif message.arbitration_id == 0x002 and message.data == b'\x00\x00\x00\x00\x00\x00':
+            elif message.arbitration_id == 0x007 and message.data == b'\x00\x00\x00\x00\x00':
                 frontseqright_active = False 
 
 
