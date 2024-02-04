@@ -228,7 +228,6 @@ def can_message_thread():
                 tlright_active = False
                 handle_brake()
             elif message.arbitration_id == 0x001 and message.data == b'\x00\x00\x00\x00\x00':
-                tlright = False
                 turn_off_brake_leds()    
             elif message.arbitration_id == 0x002 and message.data == b'\x01\x01\x00\x00\x00\x00':
                 if not frontseqright_active:  
