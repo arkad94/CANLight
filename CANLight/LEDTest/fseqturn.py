@@ -34,11 +34,13 @@ try:
 
         # Sequentially revert specific LEDs back to dim white with pauses
         revert_sequences = [
-            [0, 7, 8, 15],
-            [6, 9],
+            [4, 11],
             [5, 10],
-            [4, 11]
-        ]
+            [6,9],
+            [0, 7, 8, 15],
+
+
+        
         for group in revert_sequences:
             set_leds_color(group, white_dim)
             time.sleep(0.2)
