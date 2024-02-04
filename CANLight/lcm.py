@@ -207,7 +207,7 @@ def tlright():
 bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
 
 def can_message_thread():
-    global tlright_active, thread_stop, frontseqright_active
+    global tlright_active, thread_stop, frontseqright_active, frontseq_thread 
     while not thread_stop:
         message = bus.recv(1.0)
         if message:
@@ -224,10 +224,12 @@ def can_message_thread():
                 tlright_active = False
                 handle_brake()
             elif message.arbitration_id == 0x002 and message.data == b'\x01\x01\x00\x00\x00\x00':
-                frontseqright_active = True
-                threading.Thread(target=frontsequentialright).start()  # Start animation in new thread
+                if not frontseqright_active:  # Start only if not already active
+                    frontseqright_active = True
+                    frontseq_thread = threading.Thread(target=frontsequentialright)
+                    frontseq_thread.start()
             elif message.arbitration_id == 0x002 and message.data == b'\x01\x00\x00\x00\x00\x00':
-                frontseqright_active = False  # Set flag to stop animation
+                frontseqright_active = False
 
         if thread_stop:  # Check if the flag is set to stop
             break
@@ -235,20 +237,19 @@ def can_message_thread():
 can_thread = threading.Thread(target=can_message_thread)
 can_thread.start()
 
-# Main loop
 try:
     while True:
         if tlright_active:
             tlright()
-        elif frontseqright_active:
-            frontsequentialright()            
+        # No need to call frontsequentialright here as it's handled by its own thread
         if thread_stop:  # Check if the flag is set to stop
             break
         time.sleep(0.1)  # Small delay to prevent high CPU usage
 except KeyboardInterrupt:
     print("CAN bus shutdown gracefully")
     thread_stop = True  # Set the flag to stop the thread
+    if frontseqright_active:
+        frontseq_thread.join()  # Wait for the animation thread to finish
 finally:
-    can_thread.join()   # Wait for the thread to finish
     turn_off_leds()
     bus.shutdown()
