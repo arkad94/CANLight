@@ -79,6 +79,47 @@ def transition_to_drl():
             strip.setPixelColor(i, Color(0, 0, 0))
     strip.show()
 
+# ... [existing imports and configurations]
+
+# Define the new animation function with a new name
+amber = Color(255, 96, 0)  # Amber color
+white_dim = Color(25, 25, 25)  # Dim white color (brightness reduced)
+
+def set_leds_color(leds, color):
+    for i in leds:
+        strip.setPixelColor(i, color)
+    strip.show()
+
+def frontsequentialright():
+    set_leds_color(range(LED_COUNT), white_dim)
+    time.sleep(0.2)
+    set_leds_color([0, 7, 8, 15, 6, 9, 5, 10, 4, 11], amber)
+    time.sleep(0.2)
+    revert_sequences = [[4, 11], [5, 10], [6, 9], [0, 7, 8, 15]]
+    for group in revert_sequences:
+        set_leds_color(group, white_dim)
+        time.sleep(0.2)
+
+# ... [existing functions like turn_off_leds, welcome_animation, etc.]
+
+# Modify the can_message_thread function to call the renamed function
+def can_message_thread():
+    global tlright_active, thread_stop
+    while not thread_stop:
+        message = bus.recv(1.0)
+        if message:
+            # ... [existing message handling code]
+
+            # Handle new CAN message with the renamed function
+            if message.arbitration_id == 0x002 and message.data == b'\x01\x01\x00\x00\x00\x00':
+                frontsequentialright()
+
+        if thread_stop:
+            break
+
+
+
+
 def welcome_tail():
     deep_red = Color(139, 0, 0)
     amber = Color(255, 96, 0)
@@ -179,9 +220,9 @@ bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
 
 def can_message_thread():
     global tlright_active, thread_stop
-    bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
+can_thread = threading.Thread(target=can_message_thread, args=(bus,))
 
-    while not thread_stop:
+while not thread_stop:
         message = bus.recv(1.0)
         if message:
             if message.arbitration_id == 0x007:
@@ -197,6 +238,8 @@ def can_message_thread():
             elif message.arbitration_id == 0x001 and message.data == b'\x01\x01\x01\x01\x01':
                 tlright_active = False
                 handle_brake()
+            if message.arbitration_id == 0x002 and message.data == b'\x01\x01\x00\x00\x00\x00':
+                frontsequentialright()                
         if thread_stop:  # Check if the flag is set to stop
            break            
 
@@ -218,3 +261,4 @@ except KeyboardInterrupt:
 finally:
     can_thread.join()   # Wait for the thread to finish
     turn_off_leds()
+    bus.shutdown()
