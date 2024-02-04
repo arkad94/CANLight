@@ -93,7 +93,6 @@ def set_leds_color(leds, color):
 
 def frontsequentialright():
     global frontseqright_active
-   
 
     while frontseqright_active:
         set_leds_color(range(LED_COUNT), white_dim)
@@ -105,8 +104,8 @@ def frontsequentialright():
             set_leds_color(group, white_dim)
             time.sleep(0.2)
 
-        if not frontseqright_active:
-            break
+            if not frontseqright_active:  # Check flag after each group
+                break
 
 
 def welcome_tail():
@@ -226,6 +225,9 @@ def can_message_thread():
                 handle_brake()
             elif message.arbitration_id == 0x002 and message.data == b'\x01\x01\x00\x00\x00\x00':
                 frontseqright_active = True
+                threading.Thread(target=frontsequentialright).start()  # Start animation in new thread
+            elif message.arbitration_id == 0x002 and message.data == b'\x01\x00\x00\x00\x00\x00':
+                frontseqright_active = False  # Set flag to stop animation
 
         if thread_stop:  # Check if the flag is set to stop
             break
