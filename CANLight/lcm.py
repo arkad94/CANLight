@@ -105,8 +105,8 @@ def frontsequentialright():
             set_leds_color(group, white_dim)
             time.sleep(0.2)
 
-            if not frontseqright_active:
-                break
+        if not frontseqright_active:
+            break
 
 
 def welcome_tail():
