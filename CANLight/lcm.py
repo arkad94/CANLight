@@ -182,7 +182,7 @@ def can_message_thread():
     bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
 
     while not thread_stop:
-        message = bus.recv()
+        message = bus.recv(1.0)
         if message:
             if message.arbitration_id == 0x007:
                 tlright_active = False
