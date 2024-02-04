@@ -92,7 +92,7 @@ def set_leds_color(leds, color):
     strip.show()
 
 def frontsequentialright():
-    global tlright_active
+    global frontseqright_active
     tlright_active = True  # Assuming you use the same flag as tlright
 
     while tlright_active:
@@ -105,7 +105,7 @@ def frontsequentialright():
             set_leds_color(group, white_dim)
             time.sleep(0.2)
 
-            if not tlright_active:
+            if not frontseqright_active
                 break
 
 
@@ -238,6 +238,8 @@ try:
     while True:
         if tlright_active:
             tlright()
+        elif frontseqright_active:
+            frontsequentialright()            
         if thread_stop:  # Check if the flag is set to stop
             break
         time.sleep(0.1)  # Small delay to prevent high CPU usage
