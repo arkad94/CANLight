@@ -94,13 +94,19 @@ def set_leds_color(leds, color):
 def frontsequentialright():
     global frontseqright_active
 
-    while frontseqright_active:
+    while True:
+        if not frontseqright_active:
+            break
+
         set_leds_color(range(LED_COUNT), white_dim)
         time.sleep(0.2)
         set_leds_color([0, 7, 8, 15, 6, 9, 5, 10, 4, 11], amber)
         time.sleep(0.2)
+
         revert_sequences = [[4, 11], [5, 10], [6, 9], [0, 7, 8, 15]]
         for group in revert_sequences:
+            if not frontseqright_active:
+                return
             set_leds_color(group, white_dim)
             time.sleep(0.2)
 
@@ -207,7 +213,7 @@ def tlright():
 bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
 
 def can_message_thread():
-    global tlright_active, thread_stop, frontseqright_active, frontseq_thread 
+    global tlright_active, thread_stop, frontseqright_active 
     while not thread_stop:
         message = bus.recv(1.0)
         if message:
@@ -224,12 +230,10 @@ def can_message_thread():
                 tlright_active = False
                 handle_brake()
             elif message.arbitration_id == 0x002 and message.data == b'\x01\x01\x00\x00\x00\x00':
-                if not frontseqright_active:  # Start only if not already active
-                    frontseqright_active = True
-                    frontseq_thread = threading.Thread(target=frontsequentialright)
-                    frontseq_thread.start()
-            elif message.arbitration_id == 0x002 and message.data == b'\x01\x00\x00\x00\x00\x00':
-                frontseqright_active = False
+                frontseqright_active = True
+
+            elif message.arbitration_id == 0x007 and message.data == b'\x00\x00\x00\x00\x00':
+                frontseqright_active = False  # Stop frontsequentialright animation
 
         if thread_stop:  # Check if the flag is set to stop
             break
