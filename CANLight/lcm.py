@@ -93,7 +93,7 @@ def set_leds_color(leds, color):
 
 def frontsequentialright():
     global frontseqright_active
-    tlright_active = True  # Assuming you use the same flag as tlright
+   
 
     while frontseqright_active:
         set_leds_color(range(LED_COUNT), white_dim)
