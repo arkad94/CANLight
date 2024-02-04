@@ -13,6 +13,7 @@ LED_INVERT = False
 
 tlright_active = False
 frontseqright_active = False
+frontseq_thread = None
 thread_stop = False
 
 # CAN configuration
@@ -94,10 +95,7 @@ def set_leds_color(leds, color):
 def frontsequentialright():
     global frontseqright_active
 
-    while True:
-        if not frontseqright_active:
-            break
-
+    while frontseqright_active:
         set_leds_color(range(LED_COUNT), white_dim)
         time.sleep(0.2)
         set_leds_color([0, 7, 8, 15, 6, 9, 5, 10, 4, 11], amber)
@@ -106,7 +104,7 @@ def frontsequentialright():
         revert_sequences = [[4, 11], [5, 10], [6, 9], [0, 7, 8, 15]]
         for group in revert_sequences:
             if not frontseqright_active:
-                return
+                return  # Exit the function if the flag is False
             set_leds_color(group, white_dim)
             time.sleep(0.2)
 
@@ -230,10 +228,16 @@ def can_message_thread():
                 tlright_active = False
                 handle_brake()
             elif message.arbitration_id == 0x002 and message.data == b'\x01\x01\x00\x00\x00\x00':
-                if not frontseqright_active:  # Start only if not already active
+                if not frontseqright_active:  
                     frontseqright_active = True
-                    frontseq_thread = threading.Thread(target=frontsequentialright)  # Create a new thread for the animation
-                    frontseq_thread.start()  # Start the thread
+                    if frontseq_thread is None or not frontseq_thread.is_alive():
+                        frontseq_thread = threading.Thread(target=frontsequentialright)
+                        frontseq_thread.start()
+                else:  # If already active, do nothing or handle as needed
+                    pass
+            
+            elif message.arbitration_id == 0x002 and message.data == [some other pattern]:
+                frontseqright_active = False 
 
 
 
@@ -253,9 +257,10 @@ try:
         time.sleep(0.1)  # Small delay to prevent high CPU usage
 except KeyboardInterrupt:
     print("CAN bus shutdown gracefully")
-    thread_stop = True  # Set the flag to stop the thread
-    if frontseqright_active:
-        frontseq_thread.join() # Wait for the animation thread to finish
+    thread_stop = True
+    frontseqright_active = False  # Ensure this flag is also set to False
+    if frontseq_thread is not None:
+        frontseq_thread.join()
 finally:
     turn_off_leds()
     bus.shutdown()
