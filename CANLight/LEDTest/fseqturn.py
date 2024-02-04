@@ -38,7 +38,7 @@ try:
             [5, 10],
             [6,9],
             [0, 7, 8, 15],
-
+        ]
 
         
         for group in revert_sequences:

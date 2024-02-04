@@ -79,7 +79,7 @@ def transition_to_drl():
             strip.setPixelColor(i, Color(0, 0, 0))
     strip.show()
 
-# ... [existing imports and configurations]
+
 
 # Define the new animation function with a new name
 amber = Color(255, 96, 0)  # Amber color
@@ -91,33 +91,21 @@ def set_leds_color(leds, color):
     strip.show()
 
 def frontsequentialright():
-    set_leds_color(range(LED_COUNT), white_dim)
-    time.sleep(0.2)
-    set_leds_color([0, 7, 8, 15, 6, 9, 5, 10, 4, 11], amber)
-    time.sleep(0.2)
-    revert_sequences = [[4, 11], [5, 10], [6, 9], [0, 7, 8, 15]]
-    for group in revert_sequences:
-        set_leds_color(group, white_dim)
+    global tlright_active
+    tlright_active = True  # Assuming you use the same flag as tlright
+
+    while tlright_active:
+        set_leds_color(range(LED_COUNT), white_dim)
         time.sleep(0.2)
+        set_leds_color([0, 7, 8, 15, 6, 9, 5, 10, 4, 11], amber)
+        time.sleep(0.2)
+        revert_sequences = [[4, 11], [5, 10], [6, 9], [0, 7, 8, 15]]
+        for group in revert_sequences:
+            set_leds_color(group, white_dim)
+            time.sleep(0.2)
 
-# ... [existing functions like turn_off_leds, welcome_animation, etc.]
-
-# Modify the can_message_thread function to call the renamed function
-def can_message_thread():
-    global tlright_active, thread_stop
-    while not thread_stop:
-        message = bus.recv(1.0)
-        if message:
-            # ... [existing message handling code]
-
-            # Handle new CAN message with the renamed function
-            if message.arbitration_id == 0x002 and message.data == b'\x01\x01\x00\x00\x00\x00':
-                frontsequentialright()
-
-        if thread_stop:
-            break
-
-
+            if not tlright_active:
+                break
 
 
 def welcome_tail():
@@ -220,30 +208,27 @@ bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
 
 def can_message_thread():
     global tlright_active, thread_stop
-can_thread = threading.Thread(target=can_message_thread, args=(bus,))
-
-while not thread_stop:
+    while not thread_stop:
         message = bus.recv(1.0)
         if message:
-            if message.arbitration_id == 0x007:
+            if message.arbitration_id == 0x007 and message.data == b'\x01\x00\x00\x00\x00':
+                welcome_animation()
+            elif message.arbitration_id == 0x007 and message.data == b'\x00\x00\x00\x00\x01':
+                welcome_tail()
+            elif message.arbitration_id == 0x007 and message.data == b'\x00\x00\x00\x00\x00':
                 tlright_active = False
-                if message.data == b'\x01\x00\x00\x00\x00':
-                    welcome_animation()
-                elif message.data == b'\x00\x00\x00\x00\x01':
-                    welcome_tail()
-                elif message.data == b'\x00\x00\x00\x00\x00':
-                    turn_off_leds()
+                turn_off_leds()
             elif message.arbitration_id == 0x002 and message.data == b'\x00\x00\x00\x00\x01\x01':
                 tlright_active = True
             elif message.arbitration_id == 0x001 and message.data == b'\x01\x01\x01\x01\x01':
                 tlright_active = False
                 handle_brake()
-            if message.arbitration_id == 0x002 and message.data == b'\x01\x01\x00\x00\x00\x00':
-                frontsequentialright()                
-        if thread_stop:  # Check if the flag is set to stop
-           break            
+            elif message.arbitration_id == 0x002 and message.data == b'\x01\x01\x00\x00\x00\x00':
+                tlright_active = True
 
-# Start CAN message handling thread
+        if thread_stop:  # Check if the flag is set to stop
+            break
+
 can_thread = threading.Thread(target=can_message_thread)
 can_thread.start()
 
