@@ -12,6 +12,7 @@ LED_BRIGHTNESS = 15
 LED_INVERT = False
 
 tlright_active = False
+frontseqright_active = False
 thread_stop = False
 
 # CAN configuration
@@ -207,7 +208,7 @@ def tlright():
 bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
 
 def can_message_thread():
-    global tlright_active, thread_stop
+    global tlright_active, thread_stop, frontseqright_active
     while not thread_stop:
         message = bus.recv(1.0)
         if message:
@@ -224,7 +225,7 @@ def can_message_thread():
                 tlright_active = False
                 handle_brake()
             elif message.arbitration_id == 0x002 and message.data == b'\x01\x01\x00\x00\x00\x00':
-                tlright_active = True
+                frontseqright_active = True
 
         if thread_stop:  # Check if the flag is set to stop
             break
