@@ -297,7 +297,7 @@ try:
         time.sleep(0.1)  # Small delay to prevent high CPU usage
         if tlleft_active:
             tlleft()
-        if thread_stop
+        if thread_stop:
             break    
 except KeyboardInterrupt:
     print("CAN bus shutdown gracefully")
