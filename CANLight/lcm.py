@@ -213,7 +213,7 @@ def tlright():
 bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
 
 def can_message_thread():
-    global tlright_active, thread_stop, frontseqright_active 
+    global tlright_active, thread_stop, frontseqright_active, frontseq_thread  
     while not thread_stop:
         message = bus.recv(1.0)
         if message:
@@ -230,10 +230,12 @@ def can_message_thread():
                 tlright_active = False
                 handle_brake()
             elif message.arbitration_id == 0x002 and message.data == b'\x01\x01\x00\x00\x00\x00':
-                frontseqright_active = True
+                if not frontseqright_active:  # Start only if not already active
+                    frontseqright_active = True
+                    frontseq_thread = threading.Thread(target=frontsequentialright)  # Create a new thread for the animation
+                    frontseq_thread.start()  # Start the thread
 
-            elif message.arbitration_id == 0x007 and message.data == b'\x00\x00\x00\x00\x00':
-                frontseqright_active = False  # Stop frontsequentialright animation
+
 
         if thread_stop:  # Check if the flag is set to stop
             break
@@ -253,7 +255,7 @@ except KeyboardInterrupt:
     print("CAN bus shutdown gracefully")
     thread_stop = True  # Set the flag to stop the thread
     if frontseqright_active:
-        frontseq_thread.join()  # Wait for the animation thread to finish
+        frontseq_thread.join() # Wait for the animation thread to finish
 finally:
     turn_off_leds()
     bus.shutdown()
