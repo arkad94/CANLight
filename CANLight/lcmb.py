@@ -12,6 +12,7 @@ LED_BRIGHTNESS = 15
 LED_INVERT = False
 
 tlright_active = False
+tlleft_active = False
 frontseqright_active = False
 frontseq_thread = None
 thread_stop = False
@@ -207,11 +208,44 @@ def tlright():
         strip.show()
         time.sleep(1)
 
+def tlleft():
+    global tlleft_active
+    tlleft_active = True
+
+    # Set top and bottom rows to red
+    for i in range(4):
+        strip.setPixelColor(i, Color(255, 0, 0))  # Top row red
+        strip.setPixelColor(15 - i, Color(255, 0, 0))  # Bottom row red
+    strip.show()
+
+    while tlleft_active:
+        # Amber animation for the middle rows
+        for i in range(4):
+            strip.setPixelColor(8 - i, Color(255, 96, 0))  # Middle top row
+            strip.setPixelColor(7 + i, Color(255, 96, 0))  # Middle bottom row
+
+            strip.show()
+            time.sleep(0.2)
+
+            # Check the flag after updating each LED
+            if not tlleft_active:
+                break
+
+        # Check the flag after completing one cycle of updates
+        if not tlleft_active:
+            break
+
+        # Turn off only the amber LEDs
+        for i in range(4, 12):
+            strip.setPixelColor(i, Color(0, 0, 0))
+        strip.show()
+        time.sleep(1)        
+
 
 bus = can.interface.Bus(CAN_CHANNEL, bustype='socketcan', bitrate=CAN_BITRATE)
 
 def can_message_thread():
-    global tlright_active, thread_stop, frontseqright_active, frontseq_thread  
+    global tlright_active, thread_stop, frontseqright_active, frontseq_thread, tlleft_active  
     while not thread_stop:
         message = bus.recv(1.0)
         if message:
@@ -224,8 +258,11 @@ def can_message_thread():
                 turn_off_leds()
             elif message.arbitration_id == 0x002 and message.data == b'\x00\x00\x00\x00\x01\x01':
                 tlright_active = True
+            elif message.arbitration_id == 0x005 and message.data == b'\x00\x00\x00\x00\x01\x01':
+                tlleft_active = True    
             elif message.arbitration_id == 0x001 and message.data == b'\x01\x01\x01\x01\x01':
                 tlright_active = False
+                tlleft_active = False
                 handle_brake()
             elif message.arbitration_id == 0x001 and message.data == b'\x00\x00\x00\x00\x00':
                 turn_off_brake_leds()    
@@ -258,6 +295,10 @@ try:
         if thread_stop:  # Check if the flag is set to stop
             break
         time.sleep(0.1)  # Small delay to prevent high CPU usage
+        if tlleft_active:
+            tlleft()
+        if thread_stop:
+            break    
 except KeyboardInterrupt:
     print("CAN bus shutdown gracefully")
     thread_stop = True
